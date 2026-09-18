@@ -16,7 +16,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build:
     name: Build ${{ matrix.target }} (${{ matrix.os }})
-    runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
     strategy:
@@ -25,24 +25,29 @@ jobs:
         include:
           # Linux x86_64
           - os: linux
+            runner: [self-hosted, linux, x64]
             target: x86_64-unknown-linux-gnu
             manylinux: auto
 
           # Linux aarch64
           - os: linux
+            runner: [self-hosted, linux, x64]
             target: aarch64-unknown-linux-gnu
             manylinux: 2_28
 
           # macOS x86_64 (Intel)
           - os: macos
+            runner: [self-hosted, macOS, ARM64]
             target: x86_64-apple-darwin
 
           # macOS arm64 (Apple Silicon)
           - os: macos
+            runner: [self-hosted, macOS, ARM64]
             target: aarch64-apple-darwin
 
           # Windows x86_64
           - os: windows
+            runner: windows-latest
             target: x86_64-pc-windows-msvc
 
     steps:
@@ -70,7 +75,7 @@ jobs:
   # ---------------------------------------------------------------------------
   sdist:
     name: Build sdist
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     permissions:
       contents: read
     steps:
@@ -99,16 +104,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: [self-hosted, linux, x64]
             python: '3.12'
             target: linux-x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
+          - os: [self-hosted, linux, x64]
             python: '3.13'
             target: linux-x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
+          - os: [self-hosted, linux, x64]
             python: '3.14'
             target: linux-x86_64-unknown-linux-gnu
-          - os: macos-14
+          - os: [self-hosted, macOS, ARM64]
             python: '3.12'
             target: macos-aarch64-apple-darwin
           - os: windows-latest
@@ -145,7 +150,7 @@ jobs:
   publish:
     name: Publish to PyPI
     needs: [build, sdist, test]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     environment:
       name: release
       url: https://pypi.org/project/wse-server/
@@ -180,7 +185,7 @@ jobs:
   publish-python-client:
     name: Publish Python Client to PyPI
     needs: [publish]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     environment:
       name: release
       url: https://pypi.org/project/wse-client/
@@ -220,7 +225,7 @@ jobs:
   publish-npm:
     name: Publish to npm
     needs: [publish]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     permissions:
       contents: read
       id-token: write
